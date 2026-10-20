@@ -2,9 +2,8 @@
 
 :root {
     --hud-scale: 0.8;               /* ubah untuk memperbesar / memperkecil HUD */
-    --hud-bottom: 50px;             /* jarak dari tepi bawah layar: makin besar, HUD makin naik */
-    --hud-right: 18px;              /* jarak dari tepi kanan layar */
-    --white: #f4f6f8;
+    --hud-bottom: 30px;             /* jarak dari tepi bawah layar */
+        --white: #f4f6f8;
     --off: rgba(255, 255, 255, 0.22);
     --green: #20e070;
     --blue: #2f6bff;
@@ -19,64 +18,68 @@ html, body {
     overflow: hidden !important;
     font-family: var(--font);
     color: var(--white);
-    display: flex; justify-content: flex-end; align-items: flex-end;
+    display: flex; justify-content: center; align-items: flex-end;
     user-select: none;
 }
 html.preview body { justify-content: center; align-items: center; background: #222 !important; }
 
 .hud {
-    width: 540px; margin: 18px var(--hud-right) var(--hud-bottom) 18px; padding: 20px 26px 16px;
-    border-radius: 22px;
-    background: linear-gradient(180deg, #17181b, #0b0b0d);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    width: 640px; margin: 18px 18px var(--hud-bottom);
     transform: scale(var(--hud-scale));
-    transform-origin: bottom right;
+    transform-origin: bottom center;
     flex-shrink: 0;
     position: relative;
 }
 html.preview .hud { transform-origin: center; }
 
-.main { display: flex; align-items: center; justify-content: space-between; }
+.gauge { display: block; width: 100%; height: auto; overflow: visible; }
 
-.speed {
-    font-size: 104px; line-height: 104px; font-weight: 800; letter-spacing: -2px;
-    display: flex; width: 190px;
+/* ===== Skala RPM ===== */
+.tick { stroke: rgba(255, 255, 255, 0.75); stroke-width: 2; }
+.tick.major { stroke: #fff; stroke-width: 3.5; }
+.tick.red { stroke: var(--red); }
+.num { fill: #fff; font-size: 30px; font-weight: 600; text-anchor: middle; dominant-baseline: central; font-family: var(--font); }
+.rpm-label { fill: rgba(255, 255, 255, 0.75); font-size: 12px; font-weight: 700; letter-spacing: 2px; font-family: var(--font); }
+.screen { fill: #04060a; stroke: rgba(255, 255, 255, 0.09); stroke-width: 1.5; }
+.glow-ring { fill: none; stroke: #5dffa6; stroke-opacity: .75; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(80, 255, 160, .8)); }
+.gear-box { fill: rgba(255, 255, 255, 0.06); stroke: rgba(255, 255, 255, 0.22); stroke-width: 1.5; }
+
+.sweep { fill: url(#g-sweep); }
+.needle { stroke: #fff; stroke-width: 4; stroke-linecap: round; }
+.needle-glow { stroke: rgba(255, 255, 255, 0.25); stroke-width: 10; stroke-linecap: round; }
+
+/* ===== Cakram tengah ===== */
+.gear  { fill: #fff; font-size: 32px; font-weight: 800; text-anchor: middle; dominant-baseline: central; font-family: var(--font); }
+.speed { fill: #fff; font-size: 74px; font-weight: 700; text-anchor: middle; font-family: var(--font); }
+.unit  { fill: rgba(255, 255, 255, 0.85); font-size: 16px; font-weight: 700; letter-spacing: 1px; text-anchor: middle; font-family: var(--font); }
+.odo   { fill: rgba(255, 255, 255, 0.6); font-size: 11px; font-weight: 600; text-anchor: middle; font-family: var(--font); }
+
+/* ===== Indikator samping (kiri: bensin, kanan: engine) ===== */
+.side { color: var(--white); }
+.side .guide { fill: none; stroke: rgba(255, 255, 255, 0.4); stroke-width: 2.5; }
+.side .mid { stroke: rgba(255, 255, 255, 0.5); stroke-width: 2; }
+.side .seg { fill: none; stroke: rgba(255, 255, 255, 0.12); stroke-width: 11; transition: stroke .15s; }
+.side .seg.on { stroke: var(--white); }
+.side-icon { color: rgba(255, 255, 255, 0.85); }
+.side-val { fill: rgba(255, 255, 255, 0.8); font-size: 15px; font-weight: 700; text-anchor: middle; font-family: var(--font); }
+.side-val .pct { font-size: 10px; opacity: .7; }
+
+.side.low { animation: pulse 1.2s ease-in-out infinite; }
+.side.low .seg.on, .side.warn .seg.on { stroke: var(--amber); }
+.side.low .side-icon, .side.warn .side-icon { color: var(--amber); }
+.side.danger .seg.on { stroke: var(--red); }
+.side.danger .side-icon { color: var(--red); }
+
+/* ===== Indikator bawah ===== */
+.icons {
+    display: flex; justify-content: space-around; align-items: center;
+    width: 340px; margin: 6px auto 0; padding: 9px 12px;
+    border-radius: 18px; background: linear-gradient(180deg, #14161a, #07080a);
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
-.speed span { width: 63px; text-align: center; color: var(--white); }
-.speed .dim { color: rgba(255, 255, 255, 0.1); }
-
-.center { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.gear {
-    width: 64px; height: 64px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px; font-weight: 800;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.unit { font-size: 18px; font-weight: 800; letter-spacing: 1px; }
-.odo { font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
-
-.stats { display: flex; flex-direction: column; gap: 14px; width: 120px; }
-.stat { display: flex; align-items: center; gap: 8px; color: var(--white); transition: color .2s; }
-.stat-icon { width: 24px; height: 24px; }
-.stat-value { font-size: 22px; font-weight: 800; }
-.pct { font-size: 12px; font-weight: 700; opacity: .7; align-self: flex-end; padding-bottom: 3px; margin-left: -4px; }
-.stat.low { color: var(--amber); animation: pulse 1.2s ease-in-out infinite; }
-.stat.warn { color: var(--amber); }
-.stat.danger { color: var(--red); }
-
-/* Bar RPM bersegmen */
-.rpm { display: flex; gap: 5px; margin: 22px 0 18px; }
-.seg { flex: 1; height: 12px; border-radius: 3px; background: rgba(255, 255, 255, 0.1); transition: background .08s; }
-.seg.on { background: var(--white); box-shadow: 0 0 6px rgba(255, 255, 255, 0.35); }
-.seg.on.red { background: #ff3b2f; box-shadow: 0 0 6px rgba(255, 59, 47, 0.6); }
-
-/* Indikator bawah */
-.icons { display: flex; justify-content: space-around; padding: 0 20px; }
 .icon { width: 26px; height: 26px; color: var(--off); transition: color .15s; }
 .icon svg { width: 100%; height: 100%; }
-.icon.on, .icon.active { color: var(--green); }          /* mesin menyala / sabuk dipakai / lampu dekat */
+.icon.on, .icon.active { color: var(--green); }
 .icon.high-beam { color: var(--blue); }
 .icon.signal { color: var(--amber); animation: blink .7s steps(1) infinite; }
 .icon.warn { color: var(--red); animation: pulse 1s ease-in-out infinite; }
@@ -89,13 +92,13 @@ html.preview .hud { transform-origin: center; }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
 
 /* ===================== INTRO ===================== */
-.main, .rpm, .icons { transition: opacity .5s ease; }
-.hud.booting .main, .hud.booting .rpm, .hud.booting .icons { opacity: 0; }
+/* Saat booting hanya isi gauge yang disembunyikan; panel, bezel & kotak ikon tetap tampil */
+.content, .icon svg { transition: opacity .5s ease; }
+.hud.booting .content, .hud.booting .icon svg { opacity: 0; }
 
 .intro {
-    position: absolute; inset: 0; border-radius: 22px;
+    position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 5 / 3;
     display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(circle at 50% 45%, rgba(20, 24, 32, 0.98), #000 80%);
     opacity: 0; pointer-events: none; transition: opacity .5s ease;
 }
 .intro.show { opacity: 1; }
@@ -103,8 +106,8 @@ html.preview .hud { transform-origin: center; }
 .brand-row { display: flex; align-items: center; justify-content: center; }
 
 .brand-letter {
-    display: inline-block; font-size: 52px; font-weight: 900; font-style: italic;
-    letter-spacing: 6px; color: var(--white);
+    display: inline-block; font-size: 40px; font-weight: 900; font-style: italic;
+    letter-spacing: 4px; color: var(--white);
     opacity: 0; transform: translateY(12px) scale(0.5);
     animation: letterIn .7s cubic-bezier(0.2, 0.9, 0.25, 1.2) forwards, letterWave 2.4s ease-in-out infinite;
     animation-delay: calc(var(--i) * 0.14s), calc(1.1s + var(--i) * 0.14s);
@@ -125,9 +128,8 @@ html.preview .hud { transform-origin: center; }
 }
 @keyframes lineGrow { 0% { width: 0; opacity: 0; } 100% { width: 180px; opacity: 1; } }
 
-/* Foto/logo (dipakai jika logo.png ada) */
 .brand-logo {
-    max-height: 140px; max-width: 320px; object-fit: contain;
+    max-height: 120px; max-width: 230px; object-fit: contain;
     opacity: 0; transform: scale(0.6);
     animation: logoIn .9s cubic-bezier(0.2, 0.9, 0.25, 1.2) forwards, logoGlow 2.2s ease-in-out 1s infinite;
 }
