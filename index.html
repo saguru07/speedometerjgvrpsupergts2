@@ -8,35 +8,102 @@
 </head>
 <body>
   <div class="hud booting" id="hud">
-    <div class="main">
-      <div class="speed" id="speed"><span class="dim">0</span><span class="dim">0</span><span>0</span></div>
 
-      <div class="center">
-        <div class="gear" id="gear">N</div>
-        <div id="speed-mode" class="unit">MPH</div>
-        <div class="odo"><span id="odometer">0.0</span> <span id="odo-unit">mi</span></div>
-      </div>
+    <svg class="gauge" viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="ribs" width="5" height="5" patternUnits="userSpaceOnUse">
+          <rect width="5" height="5" fill="#0b0d10"/><rect width="2" height="5" fill="#1a1d22"/>
+        </pattern>
+        <radialGradient id="g-vig" cx="400" cy="268" r="420" gradientUnits="userSpaceOnUse">
+          <stop offset=".45" stop-color="#000" stop-opacity="0"/>
+          <stop offset="1" stop-color="#000" stop-opacity=".7"/>
+        </radialGradient>
+        <radialGradient id="g-back" cx="400" cy="240" r="225" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#0c1114" stop-opacity=".92"/>
+          <stop offset="1" stop-color="#030405" stop-opacity=".95"/>
+        </radialGradient>
+        <linearGradient id="g-bezel" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#e9edf0"/>
+          <stop offset=".45" stop-color="#5b6168"/>
+          <stop offset="1" stop-color="#cfd5da"/>
+        </linearGradient>
+        <radialGradient id="g-sweep" cx="400" cy="240" r="192" gradientUnits="userSpaceOnUse">
+          <stop offset=".5" stop-color="#19c9a8" stop-opacity=".75"/>
+          <stop offset="1" stop-color="#19c9a8" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-disc" cx="400" cy="240" r="106" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#15171a"/>
+          <stop offset=".75" stop-color="#26292d"/>
+          <stop offset="1" stop-color="#4a4e54"/>
+        </radialGradient>
+      </defs>
 
-      <div class="stats">
-        <div id="fuel-group" class="stat">
-          <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 11h-1V3c0-.55-.45-1-1-1H7c-.55 0-1 .45-1 1v18h12c.55 0 1-.45 1-1v-6c0-1.66-1.34-3-3-3zm-3 2c.55 0 1 .45 1 1v4h-2v-5h1zM8 4h8v5H8V4z"/>
-          </svg>
-          <span id="fuel-value" class="stat-value">--</span><span class="pct">%</span>
-        </div>
-        <div id="health-group" class="stat">
-          <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M22 12c0-.6-.4-1-1-1h-2V9c0-.6-.4-1-1-1h-2V5c0-.6-.4-1-1-1H9c-.6 0-1 .4-1 1v3H6c-.6 0-1 .4-1 1v2H3c-.6 0-1 .4-1 1v3c0 .6.4 1 1 1h2v2c0 .6.4 1 1 1h12c.6 0 1-.4 1-1v-2h2c.6 0 1-.4 1-1v-3zM10 6h4v2h-4V6z"/>
-          </svg>
-          <span id="health-value" class="stat-value">--</span><span class="pct">%</span>
-        </div>
-      </div>
-    </div>
+      <g id="bg">
+      <!-- Rumah panel (supaya HUD terlihat jelas di game) -->
+      <rect x="6" y="64" width="788" height="408" rx="70" fill="url(#ribs)" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
+      <rect x="6" y="64" width="788" height="408" rx="70" fill="url(#g-vig)"/>
+      <rect class="screen" x="26" y="86" width="146" height="380" rx="26"/>
+      <rect class="screen" x="628" y="86" width="146" height="380" rx="26"/>
 
-    <!-- Bar RPM bersegmen (dibuat oleh script.js) -->
-    <div class="rpm" id="rpm"></div>
+      <!-- Bezel krom + cincin hijau -->
+      <circle cx="400" cy="240" r="236" fill="#07080a"/>
+      <circle cx="400" cy="240" r="222" fill="url(#g-back)"/>
+      <circle cx="400" cy="240" r="229" fill="none" stroke="url(#g-bezel)" stroke-width="12"/>
+      <circle cx="400" cy="240" r="222" fill="none" stroke="#000" stroke-opacity=".6" stroke-width="3"/>
+      <circle class="glow-ring" cx="400" cy="240" r="216"/>
+      </g>
 
-    <!-- Intro: animasi ANNIS (otomatis diganti logo.png jika file ada) -->
+      <g id="content" class="content">
+      <!-- Sapuan RPM, skala, angka -->
+      <path id="sweep" class="sweep" d=""/>
+      <g id="ticks"></g>
+      <g id="nums"></g>
+      <path id="rpm-arc" d="M434.4 435 A198 198 0 0 0 591.3 291.2" fill="none"/>
+      <text class="rpm-label"><textPath href="#rpm-arc" startOffset="50%" text-anchor="middle">x1000 RPM</textPath></text>
+
+      <!-- Gear (kanan bawah dial) -->
+      <rect class="gear-box" x="467" y="314" width="56" height="56" rx="12"/>
+      <text id="gear" class="gear" x="495" y="343">N</text>
+
+      <!-- Jarum -->
+      <g id="needle" transform="rotate(180 400 240)">
+        <line class="needle-glow" x1="400" y1="130" x2="400" y2="48"/>
+        <line class="needle" x1="400" y1="130" x2="400" y2="48"/>
+      </g>
+
+      <!-- Cakram tengah -->
+      <circle cx="400" cy="240" r="106" fill="url(#g-disc)"/>
+      <circle cx="400" cy="240" r="95" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+      <circle cx="400" cy="240" r="82" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+      <circle cx="400" cy="240" r="106" fill="none" stroke="#e3e7ea" stroke-width="4"/>
+
+      <text id="speed" class="speed" x="400" y="262">0</text>
+      <text id="speed-mode" class="unit" x="400" y="292">MPH</text>
+      <text class="odo" x="400" y="318"><tspan id="odometer">0.0</tspan> <tspan id="odo-unit">mi</tspan></text>
+
+      <!-- Kiri: BENSIN -->
+      <g id="fuel-group" class="side">
+        <path id="fuel-guide" class="guide"/>
+        <g id="fuel-segs"></g>
+        <svg class="side-icon" x="73" y="402" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 11h-1V3c0-.55-.45-1-1-1H7c-.55 0-1 .45-1 1v18h12c.55 0 1-.45 1-1v-6c0-1.66-1.34-3-3-3zm-3 2c.55 0 1 .45 1 1v4h-2v-5h1zM8 4h8v5H8V4z"/>
+        </svg>
+        <text class="side-val" x="87" y="454"><tspan id="fuel-value">--</tspan><tspan class="pct">%</tspan></text>
+      </g>
+
+      <!-- Kanan: ENGINE (health) -->
+      <g id="health-group" class="side">
+        <path id="health-guide" class="guide"/>
+        <g id="health-segs"></g>
+        <svg class="side-icon" x="699" y="402" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M22 12c0-.6-.4-1-1-1h-2V9c0-.6-.4-1-1-1h-2V5c0-.6-.4-1-1-1H9c-.6 0-1 .4-1 1v3H6c-.6 0-1 .4-1 1v2H3c-.6 0-1 .4-1 1v3c0 .6.4 1 1 1h2v2c0 .6.4 1 1 1h12c.6 0 1-.4 1-1v-2h2c.6 0 1-.4 1-1v-3zM10 6h4v2h-4V6z"/>
+        </svg>
+        <text class="side-val" x="713" y="454"><tspan id="health-value">--</tspan><tspan class="pct">%</tspan></text>
+      </g>
+      </g>
+    </svg>
+
+    <!-- Intro -->
     <div id="intro" class="intro">
       <div id="brand" class="brand" aria-label="ANNIS"></div>
     </div>
@@ -63,9 +130,9 @@
           <path d="M7.5 8.5 16.5 17" stroke="#000" stroke-width="1.6"/>
         </svg>
       </div>
-      <div id="engine" class="icon" title="Mesin">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M22 12c0-.6-.4-1-1-1h-2V9c0-.6-.4-1-1-1h-2V5c0-.6-.4-1-1-1H9c-.6 0-1 .4-1 1v3H6c-.6 0-1 .4-1 1v2H3c-.6 0-1 .4-1 1v3c0 .6.4 1 1 1h2v2c0 .6.4 1 1 1h12c.6 0 1-.4 1-1v-2h2c.6 0 1-.4 1-1v-3zM10 6h4v2h-4V6z"/>
+      <div id="engine" class="icon" title="Kunci kontak">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <path d="M12 3v9"/><path d="M6.4 6.8a8 8 0 1 0 11.2 0"/>
         </svg>
       </div>
     </div>
